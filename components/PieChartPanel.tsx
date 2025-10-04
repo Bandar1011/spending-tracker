@@ -28,10 +28,19 @@ export function PieChartPanel({ title = "Actual Spend", mode = "actual" }: Props
   }, [categories]);
 
   const series = mode === "planned" ? planned.entries : actual.entries;
+  const baseSeries = useMemo(() => {
+    const sum = (series ?? []).reduce((s: number, e: any) => s + (e?.total ?? 0), 0);
+    if (!sum) return [{ id: "__none__", name: "No spend", total: 1, isPlaceholder: true }];
+    return series;
+  }, [series]);
+
   const withPercent = useMemo(() => {
     const incomeAmount = Math.max(1, income.amount || 1);
-    return series.map((e: any) => ({ ...e, percent: Math.round((e.total / incomeAmount) * 100) }));
-  }, [series, income.amount]);
+    return baseSeries.map((e: any) => ({
+      ...e,
+      percent: e.isPlaceholder ? 0 : Math.round((e.total / incomeAmount) * 100),
+    }));
+  }, [baseSeries, income.amount]);
 
   const colors = ["#22c55e", "#06b6d4", "#ef4444", "#f59e0b", "#8b5cf6", "#10b981", "#eab308", "#3b82f6", "#14b8a6", "#f97316"];
 
@@ -45,16 +54,18 @@ export function PieChartPanel({ title = "Actual Spend", mode = "actual" }: Props
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie dataKey="total" data={withPercent} nameKey="name" cx="50%" cy="50%" outerRadius={100}>
-                {withPercent.map((_, i) => (
-                  <Cell key={i} fill={colors[i % colors.length]} />
+                {withPercent.map((d: any, i) => (
+                  <Cell key={i} fill={d.isPlaceholder ? "#ffffff" : colors[i % colors.length]} stroke={d.isPlaceholder ? "#e5e7eb" : undefined} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v: any) => formatJPY(Number(v))} />
+              <Tooltip formatter={(v: any, _n: any, ctx: any) => formatJPY(ctx?.payload?.isPlaceholder ? 0 : Number(v))} />
               <Legend formatter={(value: string) => {
                 const item = withPercent.find((r) => r.name === value) as any;
                 const actualV = item?.total ?? 0;
                 const p = item?.percent ?? 0;
-                return `${value} — ${formatJPY(actualV)} (${p}%)`;
+                const amount = item?.isPlaceholder ? 0 : actualV;
+                const label = item?.isPlaceholder ? "No spend" : value;
+                return `${label} — ${formatJPY(amount)} (${p}%)`;
               }} />
             </PieChart>
           </ResponsiveContainer>
