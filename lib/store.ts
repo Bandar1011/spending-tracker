@@ -28,6 +28,7 @@ export type StoreState = {
   setIncome: (patch: Partial<Income>) => void;
   upsertCategories: (cats: Category[]) => void;
   addTransaction: (tx: Omit<Transaction, "id">) => void;
+  updateTransaction: (id: string, patch: Partial<Omit<Transaction, "id">>) => void;
   deleteTransaction: (id: string) => void;
   resetAll: () => void;
 };
@@ -59,6 +60,8 @@ export const useStore = create<StoreState>()(
       upsertCategories: (cats) => set(() => ({ categories: cats })),
       addTransaction: (tx) =>
         set((s) => ({ transactions: [...s.transactions, { id: uuid(), ...tx }] })),
+      updateTransaction: (id, patch) =>
+        set((s) => ({ transactions: s.transactions.map((t) => (t.id === id ? { ...t, ...patch } : t)) })),
       deleteTransaction: (id) =>
         set((s) => ({ transactions: s.transactions.filter((t) => t.id !== id) })),
       resetAll: () => set(() => ({ ...seed, transactions: [] })),

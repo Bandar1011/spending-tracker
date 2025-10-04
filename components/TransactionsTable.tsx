@@ -5,6 +5,8 @@ import { useStore } from "@/lib/store";
 import { formatJPY } from "@/lib/format";
 import dayjs from "dayjs";
 import { TOKYO } from "@/lib/month";
+import { Button } from "@/components/ui/button";
+import { EditTransactionDialog } from "@/components/TransactionDialog";
 
 export function TransactionsTable() {
   const txs = useStore((s) => s.transactions);
@@ -19,6 +21,8 @@ export function TransactionsTable() {
     out.sort((a, b) => (desc ? b.d.valueOf() - a.d.valueOf() : a.d.valueOf() - b.d.valueOf()));
     return out;
   }, [txs, categories, desc]);
+  const deleteTransaction = useStore((s) => s.deleteTransaction);
+  const [editingId, setEditingId] = useState<string | null>(null);
   return (
     <div className="w-full overflow-x-auto">
       <Table>
@@ -28,6 +32,7 @@ export function TransactionsTable() {
             <TableHead>カテゴリ</TableHead>
             <TableHead className="text-right">金額</TableHead>
             <TableHead>メモ</TableHead>
+            <TableHead className="w-[140px]">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -37,10 +42,19 @@ export function TransactionsTable() {
               <TableCell>{r.categoryName}</TableCell>
               <TableCell className="text-right">{formatJPY(r.amount)}</TableCell>
               <TableCell>{r.note ?? ""}</TableCell>
+              <TableCell>
+                <div className="flex gap-2 justify-end">
+                  <Button size="sm" variant="outline" onClick={() => setEditingId(r.id)}>Edit</Button>
+                  <Button size="sm" variant="destructive" onClick={() => deleteTransaction(r.id)}>Delete</Button>
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      {editingId && (
+        <EditTransactionDialog id={editingId} open={true} onOpenChange={(v) => !v && setEditingId(null)} />
+      )}
     </div>
   );
 }
