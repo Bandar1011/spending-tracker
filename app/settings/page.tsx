@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,15 @@ export default function SettingsPage() {
     amount: income.amount,
     payday: income.payday,
   });
+
+  // Keep draft in sync with store values (handles persist rehydration)
+  useEffect(() => {
+    setDraft({
+      balance: account.currentBalance,
+      amount: income.amount,
+      payday: income.payday,
+    });
+  }, [account.currentBalance, income.amount, income.payday]);
 
   return (
     <div className="min-h-screen p-6 space-y-6">
