@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { parseJPYInput } from "@/lib/format";
 import { useMonth } from "@/hooks/useMonth";
@@ -25,7 +26,10 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Settings</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Settings</h1>
+        <Link href="/" className="text-sm text-muted-foreground hover:underline">Return</Link>
+      </div>
 
       <Card>
         <CardHeader>

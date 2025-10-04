@@ -46,20 +46,8 @@ const seed: Omit<StoreState, "setAccount" | "setIncome" | "upsertCategories" | "
   ui: { messages: [] },
 };
 
-// Seed a couple of demo transactions in current month
-const now = dayjs().tz(TOKYO);
-const monthStart = now.startOf("month");
-const demoTx = [
-  { amount: 1200, note: "Coffee", daysFromStart: 1 },
-  { amount: 4500, note: "Groceries", daysFromStart: 3 },
-  { amount: 18000, note: "Dining", daysFromStart: 8 },
-].map((x) => ({
-  id: uuid(),
-  categoryId: null,
-  amount: x.amount,
-  occurredAt: monthStart.add(x.daysFromStart, "day").toISOString(),
-  note: x.note,
-}));
+// Start with no demo transactions; user will add their own
+const demoTx: Transaction[] = [];
 
 export const useStore = create<StoreState>()(
   persist(
@@ -73,7 +61,7 @@ export const useStore = create<StoreState>()(
         set((s) => ({ transactions: [...s.transactions, { id: uuid(), ...tx }] })),
       deleteTransaction: (id) =>
         set((s) => ({ transactions: s.transactions.filter((t) => t.id !== id) })),
-      resetAll: () => set(() => ({ ...seed, transactions: demoTx })),
+      resetAll: () => set(() => ({ ...seed, transactions: [] })),
     }),
     { name: "budget-pie-store" }
   )

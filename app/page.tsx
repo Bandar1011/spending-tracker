@@ -16,6 +16,7 @@ export default function Home() {
   const totalSpent = totalSpentThisMonth(transactions);
   const availableIncome = hasLanded ? income.amount : 0;
   const projectedSavings = availableIncome - totalSpent;
+  const hideValues = transactions.length === 0;
 
   return (
     <div className="min-h-screen p-6 space-y-6">
@@ -36,6 +37,7 @@ export default function Home() {
             { label: "Remaining", value: availableIncome - totalSpent, tone: availableIncome - totalSpent < 0 ? "danger" : "default" },
             { label: "Projected Savings", value: projectedSavings, tone: projectedSavings < 0 ? "danger" : "muted" },
           ]}
+          hideValues={hideValues}
         />
         <Card className="md:col-span-2">
           <CardContent className="p-4">
