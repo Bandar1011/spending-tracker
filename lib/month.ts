@@ -36,3 +36,4 @@ export function isSameMonthJST(aIso: string, baseDate = nowJST()) {
   return a.year() === baseDate.year() && a.month() === baseDate.month();
 }
 
+

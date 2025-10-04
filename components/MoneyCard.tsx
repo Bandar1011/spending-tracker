@@ -31,3 +31,4 @@ export function MoneyCard({ title, primary, rows = [] }: MoneyCardProps) {
   );
 }
 
+

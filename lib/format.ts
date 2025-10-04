@@ -25,3 +25,4 @@ export function parseJPYInput(input: string): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+

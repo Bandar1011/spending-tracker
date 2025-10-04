@@ -16,6 +16,7 @@ export function TransactionDialog() {
   const categories = useStore((s) => s.categories);
   const activeCategories = categories?.filter((c) => !c.isArchived) ?? [];
   const addTransaction = useStore((s) => s.addTransaction);
+  const UNCATEGORIZED_VALUE = "__uncategorized__";
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState(0);
   const [date, setDate] = useState(dayjs().tz(TOKYO).format("YYYY-MM-DD"));
@@ -63,12 +64,12 @@ export function TransactionDialog() {
           </div>
           <div>
             <label className="block text-sm mb-1">Category</label>
-            <Select value={categoryId ?? ""} onValueChange={(v) => setCategoryId(v || null)}>
+            <Select value={categoryId ?? UNCATEGORIZED_VALUE} onValueChange={(v) => setCategoryId(v === UNCATEGORIZED_VALUE ? null : v)}>
               <SelectTrigger>
                 <SelectValue placeholder="選択 (未分類可)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Uncategorized</SelectItem>
+                <SelectItem value={UNCATEGORIZED_VALUE}>Uncategorized</SelectItem>
                 {activeCategories.map((c) => (
                   <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                 ))}
