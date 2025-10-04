@@ -41,7 +41,10 @@ export default function Home() {
         />
         <Card className="md:col-span-2">
           <CardContent className="p-4">
-            <PieChartPanel />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <PieChartPanel title="Planned Spend" mode="planned" />
+              <PieChartPanel title="Actual Spend" mode="actual" />
+            </div>
           </CardContent>
         </Card>
       </section>
