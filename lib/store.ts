@@ -12,7 +12,7 @@ dayjs.extend(tz);
 
 export type Account = { currentBalance: number };
 export type Income = { amount: number; payday: number; timezone: "Asia/Tokyo" };
-export type Category = { id: string; name: string; isArchived: boolean };
+export type Category = { id: string; name: string; isArchived: boolean; allocation?: number };
 export type Transaction = { id: string; categoryId?: string | null; amount: number; occurredAt: string; note?: string };
 
 type UIState = { messages: Array<{ id: string; title: string; description?: string; variant?: "default" | "success" | "error" }>; };
@@ -63,7 +63,24 @@ export const useStore = create<StoreState>()(
         set((s) => ({ transactions: s.transactions.filter((t) => t.id !== id) })),
       resetAll: () => set(() => ({ ...seed, transactions: [] })),
     }),
-    { name: "budget-pie-store" }
+    {
+      name: "budget-pie-store",
+      version: 2,
+      migrate: (persisted, version) => {
+        const state = (persisted as any) ?? {};
+        if (version < 2) {
+          if (Array.isArray(state.transactions)) {
+            const isDemo = (t: any) => {
+              const demoNotes = new Set(["Coffee", "Groceries", "Dining"]);
+              const demoAmounts = new Set([1200, 4500, 18000]);
+              return demoNotes.has(t?.note) && demoAmounts.has(Number(t?.amount)) && (t?.categoryId ?? null) === null;
+            };
+            state.transactions = state.transactions.filter((t: any) => !isDemo(t));
+          }
+        }
+        return state as any;
+      },
+    }
   )
 );
 

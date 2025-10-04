@@ -7,9 +7,9 @@ import { PieChart, Pie, Tooltip, Legend, Cell, ResponsiveContainer } from "recha
 import dayjs from "dayjs";
 import { TOKYO } from "@/lib/month";
 
-type Props = { title?: string };
+type Props = { title?: string; mode?: "actual" | "planned" };
 
-export function PieChartPanel({ title = "Actual Spend" }: Props) {
+export function PieChartPanel({ title = "Actual Spend", mode = "actual" }: Props) {
   const income = useStore((s) => s.income);
   const categories = useStore((s) => s.categories);
   const txs = useStore((s) => s.transactions);
@@ -19,10 +19,19 @@ export function PieChartPanel({ title = "Actual Spend" }: Props) {
   const m = now.month();
 
   const actual = useMemo(() => groupActualByCategory(categories, txs, y, m), [categories, txs, y, m]);
+
+  const planned = useMemo(() => {
+    const entries = categories
+      .filter((c) => !c.isArchived && (c.allocation ?? 0) > 0)
+      .map((c) => ({ id: c.id, name: c.name, total: Math.round(((c.allocation ?? 0) / 100) * (income.amount || 0)) }));
+    return { entries } as any;
+  }, [categories, income.amount]);
+
+  const series = mode === "planned" ? planned.entries : actual.entries;
   const withPercent = useMemo(() => {
     const incomeAmount = Math.max(1, income.amount || 1);
-    return actual.entries.map((e) => ({ ...e, percent: Math.round((e.total / incomeAmount) * 100) }));
-  }, [actual.entries, income.amount]);
+    return series.map((e: any) => ({ ...e, percent: Math.round((e.total / incomeAmount) * 100) }));
+  }, [series, income.amount]);
 
   const colors = ["#22c55e", "#06b6d4", "#ef4444", "#f59e0b", "#8b5cf6", "#10b981", "#eab308", "#3b82f6", "#14b8a6", "#f97316"];
 
