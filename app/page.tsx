@@ -14,7 +14,8 @@ export default function Home() {
   const transactions = useStore((s) => s.transactions);
   const { monthLabel, hasLanded } = useMonth(income.payday);
   const totalSpent = totalSpentThisMonth(transactions);
-  const availableIncome = hasLanded ? income.amount : 0;
+  // Always show income amount; spending period logic now handled in totals/grouping
+  const availableIncome = income.amount;
   const projectedSavings = availableIncome - totalSpent;
   const hideValues = transactions.length === 0;
 

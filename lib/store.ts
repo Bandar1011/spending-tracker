@@ -1,7 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { TOKYO } from "@/lib/month";
+import { TOKYO, startOfBudgetPeriod, nextBudgetPeriodStart } from "@/lib/month";
 import { v4 as uuid } from "uuid";
 import dayjs from "dayjs";
 import tz from "dayjs/plugin/timezone";
@@ -12,7 +12,7 @@ dayjs.extend(tz);
 
 export type Account = { currentBalance: number };
 export type Income = { amount: number; payday: number; timezone: "Asia/Tokyo" };
-export type Category = { id: string; name: string; isArchived: boolean; allocation?: number };
+export type Category = { id: string; name: string; isArchived: boolean; plannedAmount?: number };
 export type Transaction = { id: string; categoryId?: string | null; amount: number; occurredAt: string; note?: string };
 
 type UIState = { messages: Array<{ id: string; title: string; description?: string; variant?: "default" | "success" | "error" }>; };
@@ -65,7 +65,7 @@ export const useStore = create<StoreState>()(
     }),
     {
       name: "budget-pie-store",
-      version: 2,
+      version: 3,
       migrate: (persisted, version) => {
         const state = (persisted as any) ?? {};
         if (version < 2) {
@@ -76,6 +76,18 @@ export const useStore = create<StoreState>()(
               return demoNotes.has(t?.note) && demoAmounts.has(Number(t?.amount)) && (t?.categoryId ?? null) === null;
             };
             state.transactions = state.transactions.filter((t: any) => !isDemo(t));
+          }
+        }
+        if (version < 3) {
+          // allocation% -> plannedAmount currency migration
+          if (Array.isArray(state.categories)) {
+            const income = state?.income?.amount ?? 0;
+            state.categories = state.categories.map((c: any) => {
+              if (c.allocation != null && c.plannedAmount == null) {
+                return { ...c, plannedAmount: Math.round(((Number(c.allocation) || 0) / 100) * income), allocation: undefined };
+              }
+              return c;
+            });
           }
         }
         return state as any;
@@ -99,11 +111,12 @@ export function groupActualByCategory(categories: Category[], txs: Transaction[]
 }
 
 export function totalSpentThisMonth(txs: Transaction[], nowDate = dayjs().tz(TOKYO)) {
-  const y = nowDate.year();
-  const m = nowDate.month();
+  const store = useStore.getState();
+  const start = startOfBudgetPeriod(store.income.payday, nowDate);
+  const end = nextBudgetPeriodStart(store.income.payday, nowDate);
   return txs.reduce((sum, t) => {
     const d = dayjs(t.occurredAt).tz(TOKYO);
-    if (d.year() === y && d.month() === m) return sum + t.amount;
+    if ((d.isSame(start) || d.isAfter(start)) && d.isBefore(end)) return sum + t.amount;
     return sum;
   }, 0);
 }

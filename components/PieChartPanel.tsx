@@ -22,10 +22,10 @@ export function PieChartPanel({ title = "Actual Spend", mode = "actual" }: Props
 
   const planned = useMemo(() => {
     const entries = categories
-      .filter((c) => !c.isArchived && (c.allocation ?? 0) > 0)
-      .map((c) => ({ id: c.id, name: c.name, total: Math.round(((c.allocation ?? 0) / 100) * (income.amount || 0)) }));
+      .filter((c) => !c.isArchived && (c.plannedAmount ?? 0) > 0)
+      .map((c) => ({ id: c.id, name: c.name, total: Math.round(c.plannedAmount || 0) }));
     return { entries } as any;
-  }, [categories, income.amount]);
+  }, [categories]);
 
   const series = mode === "planned" ? planned.entries : actual.entries;
   const withPercent = useMemo(() => {
