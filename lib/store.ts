@@ -33,7 +33,7 @@ export type StoreState = {
   resetAll: () => void;
 };
 
-const seed: Omit<StoreState, "setAccount" | "setIncome" | "upsertCategories" | "addTransaction" | "deleteTransaction" | "resetAll"> = {
+const seed: Omit<StoreState, "setAccount" | "setIncome" | "upsertCategories" | "addTransaction" | "updateTransaction" | "deleteTransaction" | "resetAll"> = {
   account: { currentBalance: 0 },
   income: { amount: 200_000, payday: 27, timezone: "Asia/Tokyo" },
   categories: [
@@ -47,14 +47,10 @@ const seed: Omit<StoreState, "setAccount" | "setIncome" | "upsertCategories" | "
   ui: { messages: [] },
 };
 
-// Start with no demo transactions; user will add their own
-const demoTx: Transaction[] = [];
-
 export const useStore = create<StoreState>()(
   persist(
     (set, get) => ({
       ...seed,
-      transactions: demoTx,
       setAccount: (patch) => set((s) => ({ account: { ...s.account, ...patch } })),
       setIncome: (patch) => set((s) => ({ income: { ...s.income, ...patch } })),
       upsertCategories: (cats) => set(() => ({ categories: cats })),
@@ -82,7 +78,6 @@ export const useStore = create<StoreState>()(
           }
         }
         if (version < 3) {
-          // allocation% -> plannedAmount currency migration
           if (Array.isArray(state.categories)) {
             const income = state?.income?.amount ?? 0;
             state.categories = state.categories.map((c: any) => {
@@ -123,4 +118,5 @@ export function totalSpentThisMonth(txs: Transaction[], nowDate = dayjs().tz(TOK
     return sum;
   }, 0);
 }
+
 

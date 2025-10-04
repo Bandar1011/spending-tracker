@@ -36,21 +36,4 @@ export function isSameMonthJST(aIso: string, baseDate = nowJST()) {
   return a.year() === baseDate.year() && a.month() === baseDate.month();
 }
 
-// Budget period helpers: a period runs from payday of one month to the payday of the next
-export function startOfBudgetPeriod(payday: number, baseDate = nowJST()) {
-  const currentPayday = effectivePaydayThisMonth(payday, baseDate);
-  // If we are before this month's payday, the period started on last month's payday
-  if (baseDate.isBefore(currentPayday)) {
-    const prev = baseDate.subtract(1, "month");
-    return effectivePaydayThisMonth(payday, prev);
-  }
-  return currentPayday;
-}
-
-export function nextBudgetPeriodStart(payday: number, baseDate = nowJST()) {
-  const start = startOfBudgetPeriod(payday, baseDate);
-  const nextBase = start.add(1, "month");
-  return effectivePaydayThisMonth(payday, nextBase);
-}
-
 

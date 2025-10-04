@@ -14,8 +14,7 @@ export default function Home() {
   const transactions = useStore((s) => s.transactions);
   const { monthLabel, hasLanded } = useMonth(income.payday);
   const totalSpent = totalSpentThisMonth(transactions);
-  // Always show income amount; spending period logic now handled in totals/grouping
-  const availableIncome = income.amount;
+  const availableIncome = hasLanded ? income.amount : 0;
   const projectedSavings = availableIncome - totalSpent;
   const hideValues = transactions.length === 0;
 
@@ -42,10 +41,7 @@ export default function Home() {
         />
         <Card className="md:col-span-2">
           <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <PieChartPanel title="Planned Spend" mode="planned" />
-              <PieChartPanel title="Actual Spend" mode="actual" />
-            </div>
+            <PieChartPanel />
           </CardContent>
         </Card>
       </section>
