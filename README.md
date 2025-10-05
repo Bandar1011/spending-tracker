@@ -1,4 +1,4 @@
-Budget Pie — Frontend-only MVP
+Budget Pie — Frontend-only MVP, full stack underwork
 
 Stack
 - Next.js (App Router) + TypeScript
